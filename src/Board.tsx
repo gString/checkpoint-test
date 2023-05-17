@@ -42,13 +42,13 @@ export default function Board(): ReactElement {
         }
     }, [posts]);
 
+    const orderedPosts = useMemo(() =>
+        posts.length ? posts.sort((a, b) => new Date(b.date) - new Date(a.date)) : [], [posts]);
+
     const Post = ({post}) => {
         const {author, content} = post;
         return <PostBox onClick={() => setSelected(post)}><BoxTitle>{author}</BoxTitle><Text>{content}</Text></PostBox>
     }
-
-    const orderedPosts = useMemo(() =>
-        posts.length ? posts.sort((a, b) => new Date(b.date) - new Date(a.date)) : [], [posts]);
 
     const CreateNew = () => {
         return <PostBox onClick={() => setAddNew(true)}>
@@ -57,6 +57,10 @@ export default function Board(): ReactElement {
     }
 
     const closeDisplayModal = () => setSelected(null);
+    const deletePost = id => {
+        setPosts(prevState => prevState.filter(post => post.id != id));
+        closeDisplayModal();
+    }
     const closeNewPostModal = () => setAddNew(false);
     const addPost = async (name, msg) => {
         const newPost = await postPost(name, msg) as IPost;
@@ -68,7 +72,7 @@ export default function Board(): ReactElement {
             <ModalTitle>A note from <User>{selected.author}</User></ModalTitle>
             <FullText>{selected.content}</FullText>
             <ImagePlaceHolder/>
-            <ActionBar><ActionBtn onClick={closeDisplayModal}>Close</ActionBtn></ActionBar>
+            <ActionBar><ActionBtn onClick={() => deletePost(selected.id)}>Delete</ActionBtn><ActionBtn onClick={closeDisplayModal}>Close</ActionBtn></ActionBar>
         </Modal>
     </BlockingLayer>
 
